@@ -1,0 +1,40 @@
+¿Cuántos nodos tendrá el sistema?
+
+3 nodos iniciales
+Serán el mismo programa Flask corriendo varias veces:
+
+    Nodo A → puerto 5001
+
+    Nodo B → puerto 5002
+
+    Nodo C → puerto 5003
+
+Pueden correr como procesos locales o como contenedores Docker. La idea es que sean procesos independientes que se comunican por red, no por memoria compartida.
+¿Cómo se van a comunicar?
+
+HTTP/REST con JSON, usando Flask.
+
+    Cliente → Nodo: el cliente se conecta a cualquier nodo.
+
+        POST /mensajes para enviar un mensaje.
+
+        GET /mensajes para consultar mensajes.
+
+    Nodo → Nodo: cuando un nodo recibe un mensaje nuevo, lo replica a los demás.
+
+        POST /replicar entre nodos.
+
+    Health check: GET /health para saber si un nodo está vivo.
+
+El cliente puede usar Postman, terminal o un cliente simple. Opcionalmente ngrok para que alguien externo se conecte a un nodo.
+¿Qué pasa si uno falla?
+
+El sistema tiene tolerancia a fallos básica:
+
+    Si cae el Nodo B, los nodos A y C siguen funcionando.
+
+    El cliente puede reconectarse a otro nodo y seguir chateando.
+
+    Los mensajes ya replicados se mantienen en los nodos vivos.
+
+    Limitación: si el nodo falla justo antes de replicar, ese mensaje podría perderse. Para el alcance del proyecto es aceptable; se puede mejorar con reintentos, heartbeat o Redis.
